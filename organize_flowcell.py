@@ -121,19 +121,23 @@ def parse_samplesheet(
     return sample_info
 
 
-def organize_files(sample_info, runfolder_path, project, data_path):
+def organize_files(sample_info, runfolder_path, project, data_path, demultiplexer):
     runfolder = os.path.basename(runfolder_path)
     for sample_id, samples in sample_info.items():
         for sample_name, (lane, library_name) in samples.items():
-            fq_folder = os.path.join(runfolder_path, "Unaligned", project, sample_id)
-            src_path = glob(os.path.join(fq_folder, "*fastq.gz"))
+            fq_folder = os.path.join(runfolder_path, "Unaligned", project)
+            match demultiplexer:
+                case "bcl2fastq":
+                    src_path = glob(os.path.join(fq_folder, sample_id, "*fastq.gz"))
+                case "bclconvert":
+                    src_path = glob(os.path.join(fq_folder, f"{sample_id}*fastq.gz"))
             if src_path:
                 dst_path = os.path.join(data_path, sample_name, library_name, runfolder)
                 os.makedirs(dst_path, exist_ok=True)
                 for fastq in src_path:
                     symlink(dst_path, fastq)
             else:
-                print(f"No fastq.gz files found in {fq_folder}")
+                print(f"No fastq.gz files found in {fq_folder} for {sample_id}")
 
 
 def symlink(dst_path, fastq):
@@ -237,7 +241,7 @@ def main():
         exclude_sampleID,
     )
 
-    organize_files(sample_info, runfolder_path, project, data_path)
+    organize_files(sample_info, runfolder_path, project, data_path, demultiplexer)
 
 
 if __name__ == "__main__":
