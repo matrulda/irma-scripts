@@ -7,13 +7,11 @@ import shutil
 import csv
 from glob import glob
 
-
 SAMPLESHEET_CONST = {
-        "data_header": {"bcl2fastq": "[Data]",
-                        "bclconvert": "[BCLConvert_Data]"},
-        "sample_name_col": {"bcl2fastq": "Sample_Name",
-                          "bclconvert": "custom_Sample_Name"},
-        }
+    "data_header": {"bcl2fastq": "[Data]", "bclconvert": "[BCLConvert_Data]"},
+    "sample_name_col": {"bcl2fastq": "Sample_Name", "bclconvert": "custom_Sample_Name"},
+}
+
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
@@ -84,7 +82,9 @@ def parse_samplesheet(
                     header = next(samplesheet)
                     lane_i = header.index("Lane")
                     sample_id_i = header.index("Sample_ID")
-                    sample_name_i = header.index(SAMPLESHEET_CONST["sample_name_col"][demultiplexer])
+                    sample_name_i = header.index(
+                        SAMPLESHEET_CONST["sample_name_col"][demultiplexer]
+                    )
                     description_i = header.index("Description")
                     continue
 
@@ -181,7 +181,6 @@ def determine_demultiplexer(runfolder_path):
         print(f"Error parsing SampleSheet.csv: {e}")
 
 
-
 def remove_organized(organized_data):
     for path in organized_data:
         # Remove folder and symlinks
@@ -225,7 +224,12 @@ def main():
     demultiplexer = determine_demultiplexer(runfolder_path)
 
     sample_info = parse_samplesheet(
-            samplesheet, demultiplexer, project, exclude_lane, exclude_sample, exclude_sampleID,
+        samplesheet,
+        demultiplexer,
+        project,
+        exclude_lane,
+        exclude_sample,
+        exclude_sampleID,
     )
 
     organize_files(sample_info, runfolder_path, project, data_path)
