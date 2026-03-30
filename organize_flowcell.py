@@ -10,6 +10,7 @@ from glob import glob
 SAMPLESHEET_CONST = {
     "data_header": {"bcl2fastq": "[Data]", "bclconvert": "[BCLConvert_Data]"},
     "sample_name_col": {"bcl2fastq": "Sample_Name", "bclconvert": "custom_Sample_Name"},
+    "description_col": {"bcl2fastq": "Description", "bclconvert": "custom_Description"},
 }
 
 
@@ -85,7 +86,9 @@ def parse_samplesheet(
                     sample_name_i = header.index(
                         SAMPLESHEET_CONST["sample_name_col"][demultiplexer]
                     )
-                    description_i = header.index("Description")
+                    description_i = header.index(
+                            SAMPLESHEET_CONST["description_col"][demultiplexer]
+                    )
                     continue
 
                 if project not in row:
@@ -170,10 +173,12 @@ def determine_demultiplexer(samplesheet):
             samplesheet = csv.reader(fin)
 
             for row in samplesheet:
-                if SAMPLESHEET_CONST["data_header"]["bcl2fastq"]) in row:
+                if SAMPLESHEET_CONST["data_header"]["bcl2fastq"] in row:
                     return "bcl2fastq"
-                if SAMPLESHEET_CONST["data_header"]["bclconvert"]) in row:
+                elif SAMPLESHEET_CONST["data_header"]["bclconvert"] in row:
                     return "bclconvert"
+                else:
+                    continue
             
             raise Exception("Data header not found in SampleSheet.csv")
 
