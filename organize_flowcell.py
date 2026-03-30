@@ -164,7 +164,7 @@ def check_paths(runfolder_path, fastq_path, samplesheet, data_path, project, for
             raise Exception("Flowcell already organized for this project.")
 
 
-def determine_demultiplexer(runfolder_path):
+def determine_demultiplexer(samplesheet):
     try:
         with open(samplesheet) as fin:
             samplesheet = csv.reader(fin)
@@ -221,7 +221,7 @@ def main():
         print(f"Something went wrong: {e}")
         sys.exit(1)
 
-    demultiplexer = determine_demultiplexer(runfolder_path)
+    demultiplexer = determine_demultiplexer(samplesheet)
 
     sample_info = parse_samplesheet(
         samplesheet,
