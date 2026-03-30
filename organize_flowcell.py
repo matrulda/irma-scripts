@@ -87,7 +87,7 @@ def parse_samplesheet(
                         SAMPLESHEET_CONST["sample_name_col"][demultiplexer]
                     )
                     description_i = header.index(
-                            SAMPLESHEET_CONST["description_col"][demultiplexer]
+                        SAMPLESHEET_CONST["description_col"][demultiplexer]
                     )
                     continue
 
@@ -183,7 +183,7 @@ def determine_demultiplexer(samplesheet):
                     return "bclconvert"
                 else:
                     continue
-            
+
             raise Exception("Data header not found in SampleSheet.csv")
 
     except csv.Error as e:
