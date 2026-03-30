@@ -170,12 +170,12 @@ def determine_demultiplexer(samplesheet):
             samplesheet = csv.reader(fin)
 
             for row in samplesheet:
-                if SAMPLESHEET_CONST["data_header"]["bcl2fastq"] in row:
+                if SAMPLESHEET_CONST["data_header"]["bcl2fastq"]) in row:
                     return "bcl2fastq"
-                elif SAMPLESHEET_CONST["data_header"]["bclconvert"] in row:
+                if SAMPLESHEET_CONST["data_header"]["bclconvert"]) in row:
                     return "bclconvert"
-                else:
-                    raise Exception("Data header not found in SampleSheet.csv")
+            
+            raise Exception("Data header not found in SampleSheet.csv")
 
     except csv.Error as e:
         print(f"Error parsing SampleSheet.csv: {e}")
