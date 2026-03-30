@@ -8,6 +8,13 @@ import csv
 from glob import glob
 
 
+SAMPLESHEET_CONST = {
+        "data_header": {"bcl2fastq": "[Data]",
+                        "bclconvert": "[BCLConvert_Data]"},
+        "sample_name_col": {"bcl2fastq": "Sample_Name",
+                          "bclconvert": "custom_Sample_Name"},
+        }
+
 def parse_arguments():
     parser = argparse.ArgumentParser(
         description="Organize flowcell for a specific project"
@@ -62,7 +69,7 @@ def parse_arguments():
 
 
 def parse_samplesheet(
-    samplesheet, project, exclude_lane, exclude_sample, exclude_sampleID
+    samplesheet, demultiplexer, project, exclude_lane, exclude_sample, exclude_sampleID
 ):
     sample_info = {}
 
@@ -73,11 +80,11 @@ def parse_samplesheet(
             samplesheet = csv.reader(fin)
 
             for row in samplesheet:
-                if "[Data]" in row:
+                if SAMPLESHEET_CONST["data_header"][demultiplexer] in row:
                     header = next(samplesheet)
                     lane_i = header.index("Lane")
                     sample_id_i = header.index("Sample_ID")
-                    sample_name_i = header.index("Sample_Name")
+                    sample_name_i = header.index(SAMPLESHEET_CONST["sample_name_col"][demultiplexer])
                     description_i = header.index("Description")
                     continue
 
@@ -157,6 +164,24 @@ def check_paths(runfolder_path, fastq_path, samplesheet, data_path, project, for
             raise Exception("Flowcell already organized for this project.")
 
 
+def determine_demultiplexer(runfolder_path):
+    try:
+        with open(samplesheet) as fin:
+            samplesheet = csv.reader(fin)
+
+            for row in samplesheet:
+                if SAMPLESHEET_CONST["data_header"]["bcl2fastq"] in row:
+                    return "bcl2fastq"
+                elif SAMPLESHEET_CONST["data_header"]["bclconvert"] in row:
+                    return "bclconvert"
+                else:
+                    raise Exception("Data header not found in SampleSheet.csv")
+
+    except csv.Error as e:
+        print(f"Error parsing SampleSheet.csv: {e}")
+
+
+
 def remove_organized(organized_data):
     for path in organized_data:
         # Remove folder and symlinks
@@ -197,8 +222,10 @@ def main():
         print(f"Something went wrong: {e}")
         sys.exit(1)
 
+    demultiplexer = determine_demultiplexer(runfolder_path)
+
     sample_info = parse_samplesheet(
-        samplesheet, project, exclude_lane, exclude_sample, exclude_sampleID
+            samplesheet, demultiplexer, project, exclude_lane, exclude_sample, exclude_sampleID,
     )
 
     organize_files(sample_info, runfolder_path, project, data_path)
